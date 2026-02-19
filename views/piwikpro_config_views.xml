@@ -1,19 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_piwikpro_config_tree" model="ir.ui.view">
-        <field name="name">piwikpro.config.tree</field>
+
+    <!-- LIST VIEW (Odoo 18 uses list, not tree) -->
+    <record id="view_piwikpro_config_list" model="ir.ui.view">
+        <field name="name">piwikpro.config.list</field>
         <field name="model">piwikpro.config</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
-                <field name="active"/>
-                <field name="container_domain"/>
+                <field name="container_url"/>
                 <field name="container_id"/>
-                <field name="data_layer_name"/>
                 <field name="purchase_event_name"/>
-            </tree>
+                <field name="active"/>
+            </list>
         </field>
     </record>
 
+    <!-- FORM VIEW -->
     <record id="view_piwikpro_config_form" model="ir.ui.view">
         <field name="name">piwikpro.config.form</field>
         <field name="model">piwikpro.config</field>
@@ -25,36 +28,15 @@
                         <field name="active"/>
                     </group>
 
-                    <group string="Container">
-                        <field name="container_domain" placeholder="moyeecoffee.containers.piwik.pro"/>
-                        <field name="container_id" placeholder="5b868fbc-c24b-4102-8ea5-7669666a7699"/>
+                    <group string="Container Settings">
+                        <field name="container_url"/>
+                        <field name="container_id"/>
                         <field name="data_layer_name"/>
                         <field name="purchase_event_name"/>
-                    </group>
-
-                    <group string="Ecommerce Events">
-                        <field name="enable_view_item"/>
-                        <field name="enable_add_to_cart"/>
-                        <field name="enable_view_cart"/>
-                        <field name="enable_begin_checkout"/>
-                        <field name="enable_purchase"/>
-                    </group>
-
-                    <group string="Privacy">
-                        <field name="respect_dnt"/>
-                    </group>
-
-                    <group>
-                        <label string="Notes"/>
-                        <div class="text-muted">
-                            <p>
-                                After enabling, ensure your Piwik PRO Tag Manager has a Data Layer Event trigger
-                                matching <b>purchase_event_name</b> (default: <b>piwik_order</b>).
-                            </p>
-                        </div>
                     </group>
                 </sheet>
             </form>
         </field>
     </record>
+
 </odoo>
