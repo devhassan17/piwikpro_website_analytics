@@ -1,0 +1,107 @@
+<odoo>
+    <!-- view_item on product page -->
+    <template id="piwikpro_view_item" inherit_id="website_sale.product" name="Piwik PRO - view_item">
+        <xpath expr="//div[@id='product_details']" position="inside">
+            <t t-set="pp_active" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.active') == '1'"/>
+            <t t-set="pp_enable" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.enable_view_item') == '1'"/>
+            <t t-if="pp_active and pp_enable">
+                <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function(){
+                    try{
+                        var cfg = window.PIWIKPRO_CFG || {};
+                        var dl = window[cfg.dataLayerName || "dataLayer"] || [];
+                        var item = {
+                            item_id: "<t t-esc='product.product_variant_id.id'/>",
+                            item_name: "<t t-esc='product.name'/>",
+                            price: <t t-esc="product.lst_price"/>,
+                            quantity: 1
+                        };
+                        dlPush({event: "view_item", ecommerce: {currency: "<t t-esc='website.currency_id.name'/>", items: [item]}});
+                    }catch(e){}
+                });
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- view_cart on cart page -->
+    <template id="piwikpro_view_cart" inherit_id="website_sale.cart" name="Piwik PRO - view_cart">
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <t t-set="pp_active" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.active') == '1'"/>
+            <t t-set="pp_enable" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.enable_view_cart') == '1'"/>
+            <t t-if="pp_active and pp_enable">
+                <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function(){
+                    try{
+                        dlPush({event: "view_cart", ecommerce: {}});
+                    }catch(e){}
+                });
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- begin_checkout on checkout page -->
+    <template id="piwikpro_begin_checkout" inherit_id="website_sale.checkout" name="Piwik PRO - begin_checkout">
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <t t-set="pp_active" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.active') == '1'"/>
+            <t t-set="pp_enable" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.enable_begin_checkout') == '1'"/>
+            <t t-if="pp_active and pp_enable">
+                <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function(){
+                    try{
+                        dlPush({event: "begin_checkout", ecommerce: {}});
+                    }catch(e){}
+                });
+                </script>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- purchase on confirmation page -->
+    <template id="piwikpro_purchase" inherit_id="website_sale.confirmation" name="Piwik PRO - purchase">
+        <xpath expr="//div[@id='wrap']" position="inside">
+            <t t-set="pp_active" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.active') == '1'"/>
+            <t t-set="pp_enable" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.enable_purchase') == '1'"/>
+            <t t-if="pp_active and pp_enable and order">
+                <script type="text/javascript">
+                document.addEventListener("DOMContentLoaded", function(){
+                    try{
+                        var cfg = window.PIWIKPRO_CFG || {};
+                        var evtName = (cfg.purchaseEventName || "piwik_order");
+                        var orderId = "<t t-esc='order.name'/>";
+
+                        // Deduplicate per order id
+                        var key = "pp_purchase_sent_" + orderId;
+                        if (window.sessionStorage && sessionStorage.getItem(key)) return;
+                        if (window.sessionStorage) sessionStorage.setItem(key, "1");
+
+                        var items = [
+                            <t t-foreach="order.order_line" t-as="l">
+                                {
+                                    item_id: "<t t-esc='l.product_id.id'/>",
+                                    item_name: "<t t-esc='l.product_id.display_name'/>",
+                                    price: <t t-esc="l.price_unit"/>,
+                                    quantity: <t t-esc="l.product_uom_qty"/>
+                                }<t t-if="not loop.last">,</t>
+                            </t>
+                        ];
+
+                        dlPush({
+                            event: evtName,
+                            ecommerce: {
+                                transaction_id: orderId,
+                                value: <t t-esc="order.amount_total"/>,
+                                tax: <t t-esc="order.amount_tax"/>,
+                                shipping: <t t-esc="getattr(order, 'amount_delivery', 0.0)"/>,
+                                currency: "<t t-esc='order.currency_id.name'/>",
+                                items: items
+                            }
+                        });
+                    }catch(e){}
+                });
+                </script>
+            </t>
+        </xpath>
+    </template>
+</odoo>

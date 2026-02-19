@@ -1,0 +1,44 @@
+<odoo>
+    <template id="piwikpro_inject_head" inherit_id="website.layout" name="Piwik PRO - Head Injection">
+        <xpath expr="//head" position="inside">
+            <t t-set="pp_active" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.active') == '1'"/>
+            <t t-if="pp_active">
+                <t t-set="pp_domain" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.container_domain')"/>
+                <t t-set="pp_id" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.container_id')"/>
+                <t t-set="pp_dl" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.data_layer_name') or 'dataLayer'"/>
+                <t t-set="pp_purchase_evt" t-value="request.env['ir.config_parameter'].sudo().get_param('piwikpro.purchase_event_name') or 'piwik_order'"/>
+
+                <!-- Piwik PRO Container -->
+                <script type="text/javascript">
+                (function(window, document, dataLayerName, id) {
+                    window[dataLayerName]=window[dataLayerName]||[],window[dataLayerName].push({start:(new Date).getTime(),event:"stg.start"});
+                    var scripts=document.getElementsByTagName('script')[0],tags=document.createElement('script');
+                    var qP=[];dataLayerName!=="dataLayer"&&qP.push("data_layer_name="+dataLayerName);
+                    var qPString=qP.length>0?("?"+qP.join("&")):"";
+                    tags.async=!0;
+                    tags.src="https://"+("<t t-esc='pp_domain'/>")+"/"+"<t t-esc='pp_id'/>"+".js"+qPString;
+                    scripts.parentNode.insertBefore(tags,scripts);
+                    !function(a,n,i){a[n]=a[n]||{};for(var c=0;c<i.length;c++)!function(i){a[n][i]=a[n][i]||{},a[n][i].api=a[n][i].api||function(){var a=[].slice.call(arguments,0);
+                        "string"==typeof a[0]&&window[dataLayerName].push({event:n+"."+i+":"+a[0],parameters:[].slice.call(arguments,1)})}}(i[c])}(window,"ppms",["tm","cm"]);
+                })(window, document, "<t t-esc='pp_dl'/>", "<t t-esc='pp_id'/>");
+                </script>
+
+                <!-- Shared DataLayer + Config -->
+                <script type="text/javascript">
+                    window.<t t-esc="pp_dl"/> = window.<t t-esc="pp_dl"/> || [];
+                    window.PIWIKPRO_CFG = {
+                        dataLayerName: "<t t-esc='pp_dl'/>",
+                        purchaseEventName: "<t t-esc='pp_purchase_evt'/>",
+                        enableAddToCart: <t t-esc="request.env['ir.config_parameter'].sudo().get_param('piwikpro.enable_add_to_cart') == '1' and 'true' or 'false'"/>,
+                        respectDnt: <t t-esc="request.env['ir.config_parameter'].sudo().get_param('piwikpro.respect_dnt') == '1' and 'true' or 'false'"/>
+                    };
+                    window.dlPush = function(obj){
+                        window[window.PIWIKPRO_CFG.dataLayerName].push(obj);
+                        if (window.console) console.log("[DL PUSH]", obj.event, obj);
+                        return true;
+                    };
+                </script>
+            </t>
+        </xpath>
+    </template>
+</odoo>

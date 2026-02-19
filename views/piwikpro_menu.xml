@@ -1,0 +1,15 @@
+<odoo>
+    <record id="action_piwikpro_config" model="ir.actions.act_window">
+        <field name="name">Piwik PRO</field>
+        <field name="res_model">piwikpro.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a Piwik PRO configuration to inject the container and send ecommerce events.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_piwikpro_root" name="Piwik PRO" parent="website.main_menu" sequence="90" groups="base.group_system"/>
+    <menuitem id="menu_piwikpro_config" name="Configuration" parent="menu_piwikpro_root" action="action_piwikpro_config" sequence="10" groups="base.group_system"/>
+</odoo>
